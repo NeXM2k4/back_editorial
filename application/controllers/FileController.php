@@ -8,6 +8,7 @@ class FileController extends CI_Controller{
         parent::__construct();
 
         $this->load->model('FileModel');
+		$this->load->model('PublicacionesModel');
     }
 
     // Método para devolver el archivo de un tomo específico
@@ -61,7 +62,7 @@ class FileController extends CI_Controller{
         }
 
         // Verificar que el volume_id exista en la base de datos
-        $volume = VolumeModel::get_volume($volume_id);
+        $volume = PublicacionesModel->get_volume($volume_id);
         if (!$volume) {
             return json_encode([
                 "status" => "error",
@@ -80,7 +81,6 @@ class FileController extends CI_Controller{
         if (move_uploaded_file($fileInfo['tmp_name'], $filePath)) {
             // Guardar la información del archivo en la base de datos
             $data = [
-                "filename" => $fileInfo['name'],
                 "path" => $filePath,
                 "volume_id" => $volume_id
             ];
