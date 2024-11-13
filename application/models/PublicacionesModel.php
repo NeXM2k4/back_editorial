@@ -6,8 +6,7 @@ class Volume{
 
     public function get_volumes_by_collection($collection_id){
 
-
-
+        
     }
 
     public function get_volume($id){
