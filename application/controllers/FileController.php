@@ -8,17 +8,17 @@ class FileController extends CI_Controller{
         parent::__construct();
 
         $this->load->model('FileModel');
-		$this->load->model('PublicacionesModel');
+		//$this->load->model('PublicacionesModel');
     }
 
     // Método para devolver el archivo de un tomo específico
     public function index($volume_id) {
         $file = $this->FileModel->get_file($volume_id);
+	
 		
 		if ($file == null) $response = json_encode([
             "status" => "failed",
-            "message" => "Tomo no encontrado",
-            "data" => $file
+            "message" => "Tomo no encontrado"
         ]);
 
         else $response =  json_encode([
@@ -36,38 +36,54 @@ class FileController extends CI_Controller{
     public function upload($volume_id) {
         // Verificar que se haya enviado un archivo
         if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-            return json_encode([
+            $this->output
+			->set_content_type('application/json')
+			->set_output(json_encode([
                 "status" => "error",
                 "message" => "No se ha subido ningún archivo"
-            ]);
+            ]));
+			
+			return;
         }
 
         // Validar que el archivo sea un PDF
         $fileInfo = $_FILES['file'];
         $fileType = mime_content_type($fileInfo['tmp_name']);
-        if ($fileType !== 'application/pdf') {
-            return json_encode([
+        if (!$volume) {
+			
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode([
                 "status" => "error",
                 "message" => "El archivo debe ser un PDF"
-            ]);
+            ]));
+			
+			return;
         }
 
         // Limitar el tamaño del archivo (ejemplo: 5MB)
         $maxSize = 5 * 1024 * 1024;
         if ($fileInfo['size'] > $maxSize) {
-            return json_encode([
+            $this->output
+			->set_content_type('application/json')
+			->set_output(json_encode([
                 "status" => "error",
                 "message" => "El archivo supera el tamaño máximo permitido de 5MB"
-            ]);
+            ]));
         }
 
-        // Verificar que el volume_id exista en la base de datos
-        $volume = PublicacionesModel->get_volume($volume_id);
+        #Verificar que el volume_id exista en la base de datos
+        $volume = $this->PublicacionesModel->get_volume($volume_id);
         if (!$volume) {
-            return json_encode([
+			
+			$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode([
                 "status" => "error",
                 "message" => "El tomo especificado no existe"
-            ]);
+            ]));
+			
+			return;
         }
 
         // Definir la ruta de almacenamiento
@@ -84,20 +100,24 @@ class FileController extends CI_Controller{
                 "path" => $filePath,
                 "volume_id" => $volume_id
             ];
-            $file = FileModel::save_file($data);
-
-            return json_encode([
+            $file = $this->FileModel->save_file($data);
+			
+			$response = [
                 "status" => "success",
                 "message" => "Archivo subido exitosamente",
                 "data" => $file
-            ]);
+            ];
         } else {
-            return json_encode([
+			$response = [
                 "status" => "error",
                 "message" => "Error al subir el archivo"
-            ]);
+            ];
         }
-    }
+		
+		$this->output
+		->set_content_type('application/json')
+		->set_output(json_encode($response));
+	}
 
     // Método para eliminar un archivo específico
     public function delete($id) {
