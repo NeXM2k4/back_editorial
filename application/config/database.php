@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /*
 | -------------------------------------------------------------------
@@ -74,15 +74,16 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	'dsn'	=> '',
-	'hostname' => 'localhost',
+	'dsn' => '',
+	'hostname' => 'localhost', // o el nombre del servicio si usas Docker Compose
+	'port' => '3307',       // Especifica el puerto de tu contenedor
 	'username' => 'root',
-	'password' => 'nelsonesgay',
-	'database' => 'new_editorial',
+	'password' => 'my_secure_password',
+	'database' => 'editorial_local_docker',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
-	'db_debug' => (ENVIRONMENT !== 'production'),
+	'db_debug' => FALSE,
 	'cache_on' => FALSE,
 	'cachedir' => '',
 	'char_set' => 'utf8',
